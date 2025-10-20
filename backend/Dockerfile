@@ -2,26 +2,26 @@
 
 FROM node:20-alpine AS base
 
-# Install system tools and OpenSSL 1.1 compatibility libs (needed by Prisma)
-RUN apk add --no-cache python3 make g++ bash openssl1.1-compat
+# Install system tools and OpenSSL (for Prisma engine)
+RUN apk add --no-cache python3 make g++ bash openssl
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files first (for caching npm installs)
+# Copy package files first for layer caching
 COPY package*.json ./
 
-# Install all dependencies (including devDependencies)
+# Install dependencies
 RUN npm install --silent
 
-# Copy the rest of the source code
+# Copy rest of the source code
 COPY . .
 
-# Ensure local binaries like `tsx` and `prisma` are in PATH
+# Ensure node_modules/.bin is in PATH
 ENV PATH="./node_modules/.bin:$PATH"
 
 # Expose backend port
 EXPOSE 4000
 
-# Default command: run in watch/dev mode
+# Run in dev mode with tsx
 CMD ["npx", "tsx", "watch", "src/index.ts"]
