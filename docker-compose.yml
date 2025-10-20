@@ -35,6 +35,8 @@ services:
       - "6379:6379"
 
   backend:
+    env_file:
+      - .env
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -42,16 +44,6 @@ services:
     depends_on:
       - postgres
       - redis
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/financeai
-      REDIS_URL: redis://redis:6379
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      HUBSPOT_CLIENT_ID: ${HUBSPOT_CLIENT_ID}
-      HUBSPOT_CLIENT_SECRET: ${HUBSPOT_CLIENT_SECRET}
-      APP_URL: http://localhost:3000
-      NODE_ENV: development
     ports:
       - "4000:4000"
     volumes:

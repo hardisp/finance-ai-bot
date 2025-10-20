@@ -1,20 +1,23 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import googleOauth from './routes/googleOauth.js';
-import hubspotOauth from './routes/hubspotOauth.js';
+import express from "express";
+import googleOauthRouter from "./routes/googleOauth.js";
+import hubspotOauthRouter from "./routes/hubspotOauth.js";
+import chatRouter from "./routes/chat.js";
+import queryRoutes from "./routes/query.js";
+import userRoutes from "./routes/user.js";
+import indexUserRouter from "./routes/indexUserData.js";
 
 
-dotenv.config();
 const app = express();
 app.use(express.json());
 
+app.use("/api/google/oauth", googleOauthRouter);
+app.use("/api/hubspot/oauth", hubspotOauthRouter);
+app.use("/api/index-user", indexUserRouter);
 
-app.use('/api/oauth', googleOauth);
-app.use('/api/oauth', hubspotOauth);
+app.use("/api/chat", chatRouter);
+app.use("/api/query", queryRoutes); 
+app.use("/api/auth-test", userRoutes); 
 
-
-app.get('/api/health', (_req, res) => res.json({status: 'ok'}));
-
-
-const port = process.env.PORT || 4000;
-app.listen(port, () => console.log(`Backend listening on ${port}`));
+app.listen(4000, () => {
+  console.log("Backend running on http://localhost:4000");
+});

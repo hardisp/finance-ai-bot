@@ -72,7 +72,7 @@ This version extends the Sprint 1 starter with a **Makefile** for simple local d
 
 ## Repo structure
 
-```
+```sh
 financeai/
 ├── docker-compose.yml
 ├── Makefile
@@ -90,14 +90,39 @@ financeai/
 │   └── src/
 │       ├── index.ts
 │       └── routes/
-│           ├── googleOauth.ts
-│           └── hubspotOauth.ts
+│       │   ├── googleOauth.ts
+│       │   └── hubspotOauth.ts
+│       │   └── user.ts
+│       └── controllers/
+│       │   ├── googleOauthController.ts
+│       │   └── hubspotOauthController.ts
+│       │   └── userController.ts
+│       │   └── user.ts
+│       └── middleware/
+│       │   ├── requireAuth.ts
+│       │   └── hubspotOauthController.ts
+│       │   └── userController.ts
+│       └── utils/
+│           └── jwt.ts
 └── frontend/
     ├── Dockerfile
     ├── package.json
     ├── tsconfig.json
     └── src/pages/index.tsx
 ```
+
+### Folder structure addition
+
+```sh
+backend/
+└── src/
+    ├── services/
+    │   ├── ragService.ts
+    │   └── chatAgent.ts
+```
+
+- `ragService.ts` → handles fetching emails & HubSpot contacts/notes, storing embeddings in PostgreSQL/Redis (pgvector or similar).
+- `chatAgent.ts` → the LLM interface that uses embeddings from ragService to answer questions.
 
 ---
 
@@ -151,3 +176,12 @@ make reset
 ---
 
 
+## Redis Check
+
+```sh
+docker exec -it financeai_redis redis-cli
+```
+
+```sh
+HGETALL user:<userId>:taskEmbeddings
+```
