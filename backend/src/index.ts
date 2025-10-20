@@ -8,9 +8,13 @@ import indexUserRouter from "./routes/indexUserData.js";
 import taskRoutes from "./routes/tasks.js";
 import instructionRoutes from "./routes/ongoingInstructions.js";
 
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
+
+
+app.use(cors({ origin: "http://localhost:3000" }));
 
 app.use("/api/google/oauth", googleOauthRouter);
 app.use("/api/hubspot/oauth", hubspotOauthRouter);

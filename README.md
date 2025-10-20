@@ -185,3 +185,18 @@ docker exec -it financeai_redis redis-cli
 ```sh
 HGETALL user:<userId>:taskEmbeddings
 ```
+
+## New Routes & Endpoints
+
+| Route                   | Method | Description                                                      |
+| ----------------------- | ------ | ---------------------------------------------------------------- |
+| `/api/tasks`            | POST   | Add a new task for the authenticated user                        |
+| `/api/tasks/:id`        | PATCH  | Update a task (description/status)                               |
+| `/api/tasks/:id`        | DELETE | Delete a task                                                    |
+| `/api/instructions`     | POST   | Add an ongoing instruction                                       |
+| `/api/instructions/:id` | PATCH  | Update an instruction                                            |
+| `/api/instructions/:id` | DELETE | Delete an instruction                                            |
+| `/api/index-user`       | POST   | Re-index all user data into Redis (RAG)                          |
+| `/api/query`            | POST   | Query user data via embeddings                                   |
+| `/api/dashboard`        | GET    | Get a summary of user data (tasks, instructions, recent queries) |
+| `/api/suggestions`      | POST   | Suggest next action based on query and instructions              |

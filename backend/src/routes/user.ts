@@ -8,6 +8,6 @@ const router = Router();
 
 router.get("/me", requireAuth, getUserProfile);
 router.post("/login", loginDemoUser);
-router.patch("/me", requireAuth, updateUserProfile);
+router.patch("/profile", requireAuth, updateUserProfile);
 
 export default router;
