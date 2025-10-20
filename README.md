@@ -1,0 +1,153 @@
+# FinanceAI — Sprint 1 Starter Repo
+
+
+# FinanceAI — Sprint 1 Starter
+
+## Quick start (local)
+
+1. Copy `.env.example` to `.env` and fill values.
+2. Ensure Docker & Docker Compose are installed.
+3. Run:
+
+```bash
+docker compose up -d
+```
+
+4. Backend migrations (if using Prisma):
+
+```bash
+# run inside container or locally with prisma installed
+docker exec -it financeai_backend npx prisma migrate dev --name init
+```
+
+5. Open frontend: [http://localhost:3000](http://localhost:3000)
+
+## Google OAuth test user
+
+When you create your Google Cloud OAuth consent screen (External/testing), add the test user:
+
+* `webshookeng@gmail.com`
+
+This allows that address to authorize the OAuth client while the app is in testing status.
+
+---
+
+## Structure
+
+
+```
+financeai/
+├── docker-compose.yml
+├── .env.example
+├── README.md
+├── backend/
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── prisma/
+│   │   ├── schema.prisma
+│   │   ├── migrations/
+│   │   │   └── 202510190001_init/
+│   │   │       └── migration.sql
+│   │   └── seed.ts
+│   └── src/
+│       ├── index.ts
+│       └── routes/
+│           ├── googleOauth.ts
+│           └── hubspotOauth.ts
+└── frontend/
+    ├── Dockerfile
+    ├── package.json
+    ├── tsconfig.json
+    └── src/pages/index.tsx
+```
+
+## Makefile
+
+# FinanceAI — Sprint 1 Starter Repo (with Makefile + Prisma migration + seed)
+
+This version extends the Sprint 1 starter with a **Makefile** for simple local development, including commands to run Docker, apply migrations, and seed the database.
+
+---
+
+## Repo structure
+
+```
+financeai/
+├── docker-compose.yml
+├── Makefile
+├── .env.example
+├── README.md
+├── backend/
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── prisma/
+│   │   ├── schema.prisma
+│   │   ├── migrations/
+│   │   │   └── 202510190001_init/migration.sql
+│   │   └── seed.ts
+│   └── src/
+│       ├── index.ts
+│       └── routes/
+│           ├── googleOauth.ts
+│           └── hubspotOauth.ts
+└── frontend/
+    ├── Dockerfile
+    ├── package.json
+    ├── tsconfig.json
+    └── src/pages/index.tsx
+```
+
+---
+
+ 
+## Makefile for FinanceAI development
+ 
+
+### Usage
+
+#### Start the app
+
+```bash
+make up
+```
+
+#### Run migrations
+
+```bash
+make migrate
+```
+
+#### Seed demo data
+
+```bash
+make seed
+```
+
+#### Rebuild everything
+
+```bash
+make rebuild
+```
+
+#### Reset the entire database (⚠️ destructive)
+
+```bash
+make reset
+```
+
+| Command        | Description                                |
+| -------------- | ------------------------------------------ |
+| `make build`   | Build all images with cache                |
+| `make rebuild` | Rebuild all images from scratch (no cache) |
+| `make up`      | Start containers in background             |
+| `make down`    | Stop and remove containers                 |
+| `make migrate` | Apply Prisma migrations                    |
+| `make seed`    | Run Prisma seed data                       |
+| `make restart` | Rebuild + restart everything cleanly       |
+
+
+---
+
+
