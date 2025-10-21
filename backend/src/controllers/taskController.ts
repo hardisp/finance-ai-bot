@@ -26,7 +26,7 @@ export const getTasks = async (req: Request, res: Response) => {
  */
 export const createTask = async (req: Request, res: Response) => {
   const userId = req.user?.id;
-  const { description, priority, dueDate } = req.body;
+  const { description, status } = req.body;
 
   if (!userId) return res.status(401).json({ error: "Unauthorized" });
   if (!description) return res.status(400).json({ error: "Description required" });
@@ -34,18 +34,19 @@ export const createTask = async (req: Request, res: Response) => {
   try {
     const task = await prisma.task.create({
       data: {
-        userId,
         description,
-        priority,   // NEW: Sprint 3 field
-        dueDate,    // NEW: Sprint 3 field
+        status,
+        user: { connect: { id: userId } }, // ✅ correct relation syntax
       },
     });
-    res.status(201).json({ success: true, task });
+
+    res.status(201).json(task);
   } catch (err) {
-    console.error(err);
+    console.error("Create task error:", err);
     res.status(500).json({ error: "Failed to create task" });
   }
 };
+
 
 /**
  * Update an existing task

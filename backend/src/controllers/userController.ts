@@ -26,11 +26,28 @@ export const updateUserProfile = async (req: Request, res: Response) => {
 // ----- Tasks -----
 export const createTask = async (req: Request, res: Response) => {
   const userId = req.user?.id;
-  const { description, status } = req.body;
-  const task = await prisma.task.create({
-    data: { userId, description, status },
-  });
-  res.json(task);
+  const { description, status, priority, dueDate } = req.body;
+
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const task = await prisma.task.create({
+      data: {
+        description,
+        status,
+        priority,
+        dueDate: dueDate ? new Date(dueDate) : undefined,
+        user: { connect: { id: userId } }, // ✅ Proper relation connection
+      },
+    });
+
+    res.json(task);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create task" });
+  }
 };
 
 export const getTasks = async (req: Request, res: Response) => {
@@ -62,7 +79,7 @@ export const createInstruction = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   const { rule } = req.body;
   const instruction = await prisma.ongoingInstruction.create({
-    data: { userId, rule },
+    data: { id: userId, rule, user: { connect: { id: userId } } },
   });
   res.json(instruction);
 };
