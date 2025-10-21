@@ -34,15 +34,21 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
-# Expose port for Render
+# Create simple postgres wait script
+RUN echo '#!/bin/sh\n\
+echo "⏳ Waiting for database..."\n\
+until nc -z "${DB_HOST:-db}" "${DB_PORT:-5432}"; do\n\
+  sleep 1\n\
+done\n\
+echo "✅ Database is up!"\n\
+exec "$@"' > /wait-for-db.sh \
+ && chmod +x /wait-for-db.sh
+
 EXPOSE 4000
 
 # Environment variables
 ENV NODE_ENV=production
 ENV PORT=4000
 
-# Generate Prisma client again (ensures schema exists in runtime container)
-RUN npx prisma generate
-
-# Start the server
-CMD ["node", "dist/server.js"]
+# ✅ correct entry
+CMD ["/wait-for-db.sh", "node", "dist/src/index.js"]
