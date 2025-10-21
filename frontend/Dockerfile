@@ -11,6 +11,7 @@ COPY package*.json ./
 RUN npm install --legacy-peer-deps
 
 COPY . .
+COPY .env ./
 RUN npm run build
 
 # =========================
@@ -20,11 +21,12 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Copy only what is needed in prod
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
+
+# Only copy /public if it exists → currently your app has none
+# COPY --from=builder /app/public ./public
 
 ENV NODE_ENV=production
 EXPOSE 3000
