@@ -1,14 +1,32 @@
 // backend/src/services/ragServices.ts
 import { PrismaClient } from "@prisma/client";
-import { createClient as createRedisClient } from "redis";
+import { createClient as createRedisClient, RedisClientType } from "redis";
 import OpenAI from "openai";
 
 const prisma = new PrismaClient();
-const redis = createRedisClient({ url: process.env.REDIS_URL });
-await redis.connect();
 
 // Determine if we use mock embeddings
 const useMockEmbeddings = process.env.USE_MOCK_EMBEDDINGS === "true";
+
+// Redis client (optional)
+let redis: RedisClientType | null = null;
+
+if (!useMockEmbeddings) {
+  if (!process.env.REDIS_URL) {
+    console.warn("⚠️ No REDIS_URL provided. Redis features disabled.");
+  } else {
+    try {
+      redis = createRedisClient({ url: process.env.REDIS_URL });
+      await redis.connect();
+      console.log("✅ Connected to Redis");
+    } catch (err) {
+      console.error("❌ Failed to connect Redis:", err);
+      redis = null; // make sure app still runs
+    }
+  }
+} else {
+  console.log("⚠️ Using mock embeddings — Redis disabled");
+}
 
 // OpenAI client (only used if not mocking)
 const openai = !useMockEmbeddings
@@ -53,12 +71,15 @@ export async function indexUserData(userId: string) {
         const vector = await getEmbeddings(task.description);
         console.log(`[Index] Task ${task.id} embedding length:`, vector.length);
 
-        await redis.hSet(
-          `user:${userId}:taskEmbeddings`,
-          task.id,
-          JSON.stringify(vector)
-        );
-        console.log(`[Index] Stored task ${task.id} in Redis`);
+        // ✅ guard: only write to Redis if available
+        if (redis) {
+          await redis.hSet(
+            `user:${userId}:taskEmbeddings`,
+            task.id,
+            JSON.stringify(vector)
+          );
+          console.log(`[Index] Stored task ${task.id} in Redis`);
+        }
       } catch (e) {
         console.error("Error embedding task:", task.id, e);
       }
@@ -74,6 +95,12 @@ export async function indexUserData(userId: string) {
 // Query user's data embeddings
 export async function queryUserData(userId: string, query: string) {
   try {
+    // ✅ if no Redis yet, return null instead of crash
+    if (!redis) {
+      console.warn(`[Query] Redis is disabled — cannot query embeddings`);
+      return null;
+    }
+
     const taskEmbeddings = await redis.hGetAll(`user:${userId}:taskEmbeddings`);
     if (Object.keys(taskEmbeddings).length === 0) {
       console.warn(`[Query] No embeddings found for user ${userId}`);
