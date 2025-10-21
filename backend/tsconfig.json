@@ -10,8 +10,10 @@
         "strict": true
     },
     "include": [
-        "src",
-        "prisma"
+        "src"
     ],
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "typeRoots": [
+        "./node_modules/@types",
+        "./src/types"
+    ]
 }
