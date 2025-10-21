@@ -1,28 +1,32 @@
-# frontend/Dockerfile
+# =========================
+# 1️⃣ Build Stage
+# =========================
+FROM node:20-alpine AS builder
 
-# Use lightweight Alpine-based Node image
-FROM node:20-alpine AS base
-
-# Initialize package index first, then install build tools
-RUN apk update && apk add --no-cache python3 make g++ bash
-
-# Set working directory
 WORKDIR /app
 
-# Copy package files first (for caching efficiency)
+RUN apk update && apk add --no-cache python3 make g++ bash
+
 COPY package*.json ./
+RUN npm install --legacy-peer-deps
 
-# Install dependencies inside container
-RUN npm install --silent
-
-# Copy the rest of the source code
 COPY . .
-
-# Expose frontend port
-EXPOSE 3000
-
-# Build production bundle
 RUN npm run build
 
-# Default command (can be overridden by docker-compose)
+# =========================
+# 2️⃣ Run Stage (Production)
+# =========================
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+# Copy only what is needed in prod
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+
+ENV NODE_ENV=production
+EXPOSE 3000
+
 CMD ["npm", "run", "start"]
